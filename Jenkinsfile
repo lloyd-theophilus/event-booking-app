@@ -71,6 +71,7 @@ pipeline {
                     }
                 }
             }
+        }
          stage('SonarQube Analysis') {
              steps {
         script {
@@ -133,7 +134,7 @@ pipeline {
                 }
             }
         } */
-      /* 
+      
         stage('Build Image') {
             when { 
                 anyOf {
@@ -219,9 +220,9 @@ pipeline {
                     helmDeploy(namespace: "production", environment: "prod", REPO_NAME: "${REPO_NAME}", HELM_CHART_PATH: "${HELM_CHART_PATH}", AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}", AWS_REGION: "${AWS_REGION}", TAG: "${TAG}")
                 }
             }
-        } */
+        } 
     }
 }
-}
+
 
 
