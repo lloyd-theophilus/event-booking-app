@@ -23,7 +23,7 @@ pipeline {
         AWS_REGION = 'eu-west-2'
         ECR_REPO = 'repo-url'
         REPO_NAME = 'python-flask-deployment'
-        HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
+        HELM_CHART_PATH = './event-booking/templates' // Path to Helm chart
         DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
         PROD_CLUSTER = 'python-cluster-production'
     }
@@ -38,20 +38,20 @@ pipeline {
         stage('Checkout') {
             steps {
 
-                git branch: 'staging', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/python-flask-RESTAPI.git'
+                git branch: 'development', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
             }
         }
         
         stage('Install Dependencies') {
             steps {
                 sh '''
-                cd bookmyshow-app
+                cd event-booking-app
                 ls -la  # Verify package.json exists
                 if [ -f package.json ]; then
                     rm -rf node_modules package-lock.json  # Remove old dependencies
                     npm install  # Install fresh dependencies
                 else
-                    echo "Error: package.json not found in bookmyshow-app!"
+                    echo "Error: package.json not found in event-booking-app!"
                     exit 1
                 fi
                 '''
@@ -65,12 +65,13 @@ pipeline {
         }
         withSonarQubeEnv('sonar-server') {// If you have configured more than one global server connection, you can specify its name as configured in Jenkins
           sh "${scannerHome}/bin/sonar-scanner \
-          -Dsonar.projectKey=Python-Flask-RESTAPI \
+          -Dsonar.projectKey=Event-Booking \
           -Dsonar.sources=. \
           -Dsonar.host.url=https://sonaqube.kellerbeam.com"
         }
       }
      }
+     
             stage('Quality Gate') {
                 steps {
                 script {
