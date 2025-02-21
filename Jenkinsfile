@@ -44,20 +44,33 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                sh '''
-                cd event-booking-app
-                ls -la  # Verify package.json exists
-                if [ -f package.json ]; then
-                    rm -rf node_modules package-lock.json  # Remove old dependencies
-                    npm install  # Install fresh dependencies
-                else
-                    echo "Error: package.json not found in event-booking!"
-                    exit 1
-                fi
-                '''
-            }
-        }
+                // 1) Show top-level workspace contents for troubleshooting
+                sh 'echo "Listing workspace contents..."; ls -la'
+                
+                // 2) Enter the event-booking-app directory
+                script {
+                    if (fileExists('event-booking-app')) {
+                        dir('event-booking-app') {
+                            sh '''
+                            echo "Inside event-booking-app directory:"
+                            ls -la
 
+                            if [ -f package.json ]; then
+                                echo "package.json found. Installing dependencies..."
+                                rm -rf node_modules package-lock.json
+                                npm install
+                            else
+                                echo "Error: package.json not found in event-booking-app!"
+                                exit 1
+                            fi
+                            '''
+                        }
+                    } else {
+                        // If the directory does not exist, fail the build
+                        error("Directory 'event-booking-app' does not exist in the workspace.")
+                    }
+                }
+            }
          stage('SonarQube Analysis') {
              steps {
         script {
@@ -208,6 +221,7 @@ pipeline {
             }
         } */
     }
+}
 }
 
 
