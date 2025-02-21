@@ -38,7 +38,7 @@ pipeline {
         stage('Checkout') {
             steps {
 
-                git branch: 'development', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
+                git branch: 'QA', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
             }
         }
         
