@@ -45,7 +45,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                cd event-booking
+                cd event-booking-app
                 ls -la  # Verify package.json exists
                 if [ -f package.json ]; then
                     rm -rf node_modules package-lock.json  # Remove old dependencies
