@@ -21,11 +21,11 @@ pipeline {
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
-        ECR_REPO = 'repo-url'
-        REPO_NAME = 'python-flask-deployment'
-        HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
-        DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
-        PROD_CLUSTER = 'python-cluster-production'
+        //ECR_REPO = 'repo-url'
+        //REPO_NAME = 'python-flask-deployment'
+        //HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
+        //DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
+        //PROD_CLUSTER = 'python-cluster-production'
     }
 
     stages {
@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         } */
-
+      /* 
         stage('Build Image') {
             when { 
                 anyOf {
@@ -150,14 +150,6 @@ pipeline {
                 }
             }
         }
-
-      /*   stage('Scan Image') {
-           steps{
-            script{
-                 sh "trivy fs . > trivyfs.txt"
-           }
-        }
-    } */
 
        stage('Push to ECR') {
             when { 
@@ -214,7 +206,7 @@ pipeline {
                     helmDeploy(namespace: "production", environment: "prod", REPO_NAME: "${REPO_NAME}", HELM_CHART_PATH: "${HELM_CHART_PATH}", AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}", AWS_REGION: "${AWS_REGION}", TAG: "${TAG}")
                 }
             }
-        }
+        } */
     }
 }
 
