@@ -45,13 +45,13 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                cd event-booking-app
+                cd event-booking
                 ls -la  # Verify package.json exists
                 if [ -f package.json ]; then
                     rm -rf node_modules package-lock.json  # Remove old dependencies
                     npm install  # Install fresh dependencies
                 else
-                    echo "Error: package.json not found in event-booking-app!"
+                    echo "Error: package.json not found in event-booking!"
                     exit 1
                 fi
                 '''
