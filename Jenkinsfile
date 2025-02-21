@@ -44,31 +44,8 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                // 1) Show top-level workspace contents for troubleshooting
-                sh 'echo "Listing workspace contents..."; ls -la'
-                
-                // 2) Enter the event-booking-app directory
                 script {
-                    if (fileExists('event-booking-app')) {
-                        dir('event-booking-app') {
-                            sh '''
-                            echo "Inside event-booking-app directory:"
-                            ls -la
-
-                            if [ -f package.json ]; then
-                                echo "package.json found. Installing dependencies..."
-                                rm -rf node_modules package-lock.json
-                                npm install
-                            else
-                                echo "Error: package.json not found in event-booking-app!"
-                                exit 1
-                            fi
-                            '''
-                        }
-                    } else {
-                        // If the directory does not exist, fail the build
-                        error("Directory 'event-booking-app' does not exist in the workspace.")
-                    }
+                    sh 'npm install'
                 }
             }
         }
