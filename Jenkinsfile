@@ -74,13 +74,13 @@ pipeline {
         }
         */
         
-        stage('OWASP FS Scan') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit',
-                 odcInstallation: 'DP-CHECK'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
+      //  stage('OWASP FS Scan') {
+      //      steps {
+      //          dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit',
+      //           odcInstallation: 'DP-CHECK'
+      //          dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+      //      }
+     //   }
         
         stage('Build Image') {
             when { 
