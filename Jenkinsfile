@@ -36,15 +36,14 @@ pipeline {
             }
         }
 
+        
         stage('Checkout') {
-             stage('Checkout') {
             steps {
                 // BRANCH_NAME is automatically set by a Multibranch Pipeline
                 echo "Building branch: ${env.BRANCH_NAME}"
                 // This automatically checks out the branch that triggered the build.
                 checkout scm
             }
-        }
         }
         
         stage('Install Dependencies') {
