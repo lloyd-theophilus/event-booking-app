@@ -11,13 +11,14 @@ def helmDeploy(Map args) {
 pipeline {
     agent any
 
-     tools {
+    tools {
         jdk 'jdk17'
         nodejs 'node23'
     }
+    
     environment {
-       DATE = new Date().format('yy.M')
-       TAG = "${DATE}.${BUILD_NUMBER}"
+        DATE = new Date().format('yy.M')
+        TAG = "${DATE}.${BUILD_NUMBER}"
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
@@ -29,8 +30,8 @@ pipeline {
     }
 
     stages {
-        stage('clean workspace'){
-            steps{
+        stage('Clean Workspace') {
+            steps {
                 cleanWs()
             }
         }
@@ -43,44 +44,44 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-
                 script {
                     sh 'npm install'
                 }
             }
         }
-         stage('SonarQube Analysis') {
-             steps {
-        script {
-            scannerHome = tool 'sonar-scanner'// must match the name of an actual scanner installation directory on your Jenkins build agent
+        
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    scannerHome = tool 'sonar-scanner' // must match the name of an actual scanner installation directory on your Jenkins build agent
+                }
+                withSonarQubeEnv('sonar-server') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                       -Dsonar.projectKey=Event-Booking \
+                       -Dsonar.sources=. \
+                       -Dsonar.host.url=https://sonaqube.kellerbeam.com"
+                }
+            }
         }
-        withSonarQubeEnv('sonar-server') {// If you have configured more than one global server connection, you can specify its name as configured in Jenkins
-          sh "${scannerHome}/bin/sonar-scanner \
-           -Dsonar.projectKey=Event-Booking \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=https://sonaqube.kellerbeam.com"
-        }
-      }
-     }
-
-           /*
-            stage('Quality Gate') {
-
-                steps {
+        
+        /* Uncomment if needed
+        stage('Quality Gate') {
+            steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
                 }
-                }
-            } */
-
-            stage('OWASP FS Scan') {
+            }
+        }
+        */
+        
+        stage('OWASP FS Scan') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-CHECK'
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit',
+                 odcInstallation: 'DP-CHECK'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
-    }
-      
+        
         stage('Build Image') {
             when { 
                 anyOf {
@@ -111,7 +112,7 @@ pipeline {
             }
         }
 
-       stage('Push to ECR') {
+        stage('Push to ECR') {
             when { 
                 anyOf {
                     branch 'QA'
@@ -128,13 +129,20 @@ pipeline {
             }
         }
 
-        // --- Environment Deployments ---
         stage('Deploy to QA') {
             when { branch 'QA' }
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
-                    helmDeploy(namespace: "qa", environment: "qa", REPO_NAME: "${REPO_NAME}", HELM_CHART_PATH: "${HELM_CHART_PATH}", AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}", AWS_REGION: "${AWS_REGION}", TAG: "${TAG}")
+                    helmDeploy(
+                        namespace: "qa",
+                        environment: "qa",
+                        REPO_NAME: "${REPO_NAME}",
+                        HELM_CHART_PATH: "${HELM_CHART_PATH}",
+                        AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}",
+                        AWS_REGION: "${AWS_REGION}",
+                        TAG: "${TAG}"
+                    )
                 }
             }
         }
@@ -144,12 +152,20 @@ pipeline {
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
-                    helmDeploy(namespace: "staging", environment: "staging", REPO_NAME: "${REPO_NAME}", HELM_CHART_PATH: "${HELM_CHART_PATH}", AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}", AWS_REGION: "${AWS_REGION}", TAG: "${TAG}")
+                    helmDeploy(
+                        namespace: "staging",
+                        environment: "staging",
+                        REPO_NAME: "${REPO_NAME}",
+                        HELM_CHART_PATH: "${HELM_CHART_PATH}",
+                        AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}",
+                        AWS_REGION: "${AWS_REGION}",
+                        TAG: "${TAG}"
+                    )
                 }
             }
         }
 
-         stage('Production Approval') {
+        stage('Production Approval') {
             when { branch 'production' }
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -163,11 +179,21 @@ pipeline {
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${PROD_CLUSTER} --region ${AWS_REGION}"
-                    helmDeploy(namespace: "production", environment: "prod", REPO_NAME: "${REPO_NAME}", HELM_CHART_PATH: "${HELM_CHART_PATH}", AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}", AWS_REGION: "${AWS_REGION}", TAG: "${TAG}")
+                    helmDeploy(
+                        namespace: "production",
+                        environment: "prod",
+                        REPO_NAME: "${REPO_NAME}",
+                        HELM_CHART_PATH: "${HELM_CHART_PATH}",
+                        AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}",
+                        AWS_REGION: "${AWS_REGION}",
+                        TAG: "${TAG}"
+                    )
                 }
             }
-        } 
+        }
     }
+}
+
 
 
 
