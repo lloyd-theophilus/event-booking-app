@@ -23,7 +23,7 @@ pipeline {
         AWS_REGION = 'eu-west-2'
         ECR_REPO = 'repo-url'
         REPO_NAME = 'python-flask-deployment'
-        HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
+        HELM_CHART_PATH = './event-booking/templates' // Path to Helm chart
         DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
         PROD_CLUSTER = 'python-cluster-production'
     }
@@ -37,13 +37,13 @@ pipeline {
 
         stage('Checkout') {
             steps {
-
                 git branch: 'development', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
             }
         }
         
         stage('Install Dependencies') {
             steps {
+
                 script {
                     sh 'npm install'
                 }
@@ -62,7 +62,10 @@ pipeline {
         }
       }
      }
-           /*  stage('Quality Gate') {
+
+           /*
+            stage('Quality Gate') {
+
                 steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
@@ -76,41 +79,7 @@ pipeline {
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
-
-      /*   stage('OWASP Dependency-Check') {
-             steps {
-             dependencyCheck additionalArguments: ''' 
-            -o './'
-            -s './'
-            -f 'ALL'
-            --prettyPrint
-            --nvdApiKey $NVD_API_KEY
-            --updateonly 
-        ''', odcInstallation: 'DP-CHECK'
-
-        dependencyCheckPublisher pattern: 'dependency-check-report.xml'
     }
-} */
-       /*  stage('Developer Notification') {
-            steps {
-                script {
-                    // Archive report for email attachment
-                    archiveArtifacts artifacts: 'dependency-check-report.*', allowEmptyArchive: false
-
-                    // Send Email to Git committer
-                    if (env.GIT_COMMITTER_EMAIL) {
-                        emailext(
-                            to: env.GIT_COMMITTER_EMAIL,
-                            subject: "Dependency-Check Report for ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                            body: "Find attached the security report for your recent code changes.",
-                            attachmentsPattern: 'dependency-check-report.html'
-                        )
-                    } else {
-                        echo "No Git committer email found. Skipping email."
-                    }
-                }
-            }
-        } */
       
         stage('Build Image') {
             when { 
@@ -199,7 +168,7 @@ pipeline {
             }
         } 
     }
-}
+
 
 
 
