@@ -37,16 +37,26 @@ pipeline {
         }
 
         stage('Checkout') {
+             stage('Checkout') {
             steps {
-                git branch: 'development', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
+                // BRANCH_NAME is automatically set by a Multibranch Pipeline
+                echo "Building branch: ${env.BRANCH_NAME}"
+                // This automatically checks out the branch that triggered the build.
+                checkout scm
             }
+        }
         }
         
         stage('Install Dependencies') {
-            steps {
-                script {
-                    sh 'npm install'
+            when {
+                anyOf {
+                    branch 'testing'
+                    branch 'staging'
+                    branch 'production'
                 }
+            }
+            steps {
+                sh 'npm install'
             }
         }
         
@@ -85,7 +95,7 @@ pipeline {
         stage('Build Image') {
             when { 
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
@@ -100,7 +110,7 @@ pipeline {
         stage('Scan Image') {
             when { 
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
@@ -115,7 +125,7 @@ pipeline {
         stage('Push to ECR') {
             when { 
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
@@ -129,14 +139,14 @@ pipeline {
             }
         }
 
-        stage('Deploy to QA') {
-            when { branch 'QA' }
+        stage('Deploy to testing') {
+            when { branch 'testing' }
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
                     helmDeploy(
-                        namespace: "qa",
-                        environment: "qa",
+                        namespace: "testing",
+                        environment: "testing",
                         REPO_NAME: "${REPO_NAME}",
                         HELM_CHART_PATH: "${HELM_CHART_PATH}",
                         AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}",
