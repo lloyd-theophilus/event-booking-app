@@ -21,11 +21,11 @@ pipeline {
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
-        //ECR_REPO = 'repo-url'
-        //REPO_NAME = 'python-flask-deployment'
-        //HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
-        //DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
-        //PROD_CLUSTER = 'python-cluster-production'
+        ECR_REPO = 'repo-url'
+        REPO_NAME = 'python-flask-deployment'
+        HELM_CHART_PATH = './frontend/templates' // Path to Helm chart
+        DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
+        PROD_CLUSTER = 'python-cluster-production'
     }
 
     stages {
