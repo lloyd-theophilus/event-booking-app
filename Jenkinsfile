@@ -1,9 +1,9 @@
 def helmDeploy(Map args) {
     sh """
-        helm upgrade --install ${args.REPO_NAME}-${args.environment} ${args.HELM_CHART_PATH} \
-        --namespace ${args.namespace} \
-        --set image.repository=${args.AWS_ACCOUNT_ID}.dkr.ecr.${args.AWS_REGION}.amazonaws.com/${args.REPO_NAME} \
-        --set image.tag=${args.TAG} \
+        helm upgrade --install ${args.REPO_NAME}-${args.environment} ${args.HELM_CHART_PATH} \\
+        --namespace ${args.namespace} \\
+        --set image.repository=${args.AWS_ACCOUNT_ID}.dkr.ecr.${args.AWS_REGION}.amazonaws.com/${args.REPO_NAME} \\
+        --set image.tag=${args.TAG} \\
         --values ${args.HELM_CHART_PATH}/values-${args.environment}.yaml
     """
 }
@@ -22,13 +22,11 @@ pipeline {
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
-        ECR_REPO = 'repo-url'
-        REPO_NAME = 'python-flask-deployment'
         HELM_CHART_PATH = './event-booking/templates' // Path to Helm chart
         DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
         PROD_CLUSTER = 'python-cluster-production'
     }
-
+    
     stages {
         stage('Clean Workspace') {
             steps {
@@ -38,69 +36,102 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'development', credentialsId: 'GitHub-Token', url: 'https://github.com/lloyd-theophilus/event-booking-app.git'
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    sh 'npm install'
-                }
+                echo "Building branch: ${env.BRANCH_NAME}"
+                checkout scm
             }
         }
         
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    scannerHome = tool 'sonar-scanner' // must match the name of an actual scanner installation directory on your Jenkins build agent
+                    scannerHome = tool 'sonar-scanner'
                 }
                 withSonarQubeEnv('sonar-server') {
-                    sh "${scannerHome}/bin/sonar-scanner \
-                       -Dsonar.projectKey=Event-Booking \
-                       -Dsonar.sources=. \
-                       -Dsonar.host.url=https://sonaqube.kellerbeam.com"
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=Event-Booking -Dsonar.sources=. -Dsonar.host.url=https://sonaqube.kellerbeam.com"
                 }
             }
         }
-        
-        /* Uncomment if needed
-        stage('Quality Gate') {
-            steps {
+        /*
+            stage('Quality Gate') {
+
+                steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
                 }
-            }
-        }
-        */
-        
-      //  stage('OWASP FS Scan') {
-      //      steps {
-      //          dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit',
-      //           odcInstallation: 'DP-CHECK'
-      //          dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-      //      }
-     //   }
-        
-        stage('Build Image') {
-            when { 
+                }
+            } */
+
+        stage('Determine Environment Variables') {
+            // This stage runs only for branches that need to build and deploy
+            when {
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
             }
             steps {
                 script {
+                    // Set ECR_REPO and REPO_NAME based on the triggering branch.
+                    if (env.BRANCH_NAME == 'testing') {
+                        env.ECR_REPO = 'qa-ecr-repoUrl'
+                        env.REPO_NAME = 'python-deplyment-qa'
+                    } else if (env.BRANCH_NAME == 'staging') {
+                        env.ECR_REPO = 'repo-url'
+                        env.REPO_NAME = 'python-flask-deployment'
+                    } else if (env.BRANCH_NAME == 'production') {
+                        env.ECR_REPO = 'prod-ecrUrl'
+                        env.REPO_NAME = 'python-deployment-production'
+                    } else {
+                        error "Unsupported branch: ${env.BRANCH_NAME}"
+                    }
+                    echo "Selected ECR_REPO: ${env.ECR_REPO}"
+                    echo "Selected REPO_NAME: ${env.REPO_NAME}"
+                }
+            }
+        }
+        
+        stage('Install Dependencies') {
+            when {
+                anyOf {
+                    branch 'testing'
+                    branch 'staging'
+                    branch 'production'
+                }
+            }
+            steps {
+                sh 'npm install'
+            }
+        }
+        
+        
+      //  stage('OWASP FS Scan') {
+      //      steps {
+      //         dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-CHECK'
+      //          dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+      //      }
+      //  }
+
+        stage('Build Image') {
+            when {
+                anyOf {
+                    branch 'testing'
+                    branch 'staging'
+                    branch 'production'
+                }
+            }
+            steps {
+                script {
+                    // Build Docker image with dynamic REPO_NAME and TAG.
                     sh "docker build -t ${REPO_NAME}:${TAG} ."
                 }
             }
         }
         
         stage('Scan Image') {
-            when { 
+            when {
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
@@ -111,32 +142,34 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Push to ECR') {
-            when { 
+            when {
                 anyOf {
-                    branch 'QA'
+                    branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
             }
             steps {
                 script {
+                    // Authenticate to AWS ECR.
                     sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+                    // Tag and push the Docker image using the dynamic REPO_NAME.
                     sh "docker tag ${REPO_NAME}:${TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}:${TAG}"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}:${TAG}"
                 }
             }
         }
-
-        stage('Deploy to QA') {
-            when { branch 'QA' }
+        
+        stage('Deploy to testing') {
+            when { branch 'testing' }
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
                     helmDeploy(
-                        namespace: "qa",
-                        environment: "qa",
+                        namespace: "testing",
+                        environment: "testing",
                         REPO_NAME: "${REPO_NAME}",
                         HELM_CHART_PATH: "${HELM_CHART_PATH}",
                         AWS_ACCOUNT_ID: "${AWS_ACCOUNT_ID}",
@@ -146,7 +179,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Deploy to Staging') {
             when { branch 'staging' }
             steps {
@@ -164,7 +197,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Production Approval') {
             when { branch 'production' }
             steps {
@@ -173,7 +206,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Deploy to Production') {
             when { branch 'production' }
             steps {
@@ -193,8 +226,3 @@ pipeline {
         }
     }
 }
-
-
-
-
-
