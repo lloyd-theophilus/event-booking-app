@@ -63,16 +63,14 @@ pipeline {
 
         stage('Determine Environment Variables') {
             // This stage runs only for branches that need to build and deploy
-            steps {
-
-                when {
+            when {
                 anyOf {
                     branch 'testing'
                     branch 'staging'
                     branch 'production'
                 }
             }
-
+            steps {
                 script {
                     // Set ECR_REPO and REPO_NAME based on the triggering branch.
                     if (env.BRANCH_NAME == 'testing') {
