@@ -1,6 +1,6 @@
 # Default values for frontend.
 deployment:
-  name: python-deployment-qa-${environment}  # Fixed typo: "evironment" → "environment"
+  name: python-deployment-qa  # Fixed typo: "evironment" → "environment"
   namespace: testing
   replicaCount: 2
 
