@@ -41,8 +41,38 @@ pipeline {
             }
         }
         
-        stage('Determine Environment Variables') {
+        stage('SonarQube Analysis') {
             steps {
+                script {
+                    scannerHome = tool 'sonar-scanner'
+                }
+                withSonarQubeEnv('sonar-server') {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=Event-Booking -Dsonar.sources=. -Dsonar.host.url=https://sonaqube.kellerbeam.com"
+                }
+            }
+        }
+        /*
+            stage('Quality Gate') {
+
+                steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                }
+                }
+            } */
+
+        stage('Determine Environment Variables') {
+            // This stage runs only for branches that need to build and deploy
+            steps {
+
+                when {
+                anyOf {
+                    branch 'testing'
+                    branch 'staging'
+                    branch 'production'
+                }
+            }
+
                 script {
                     // Set ECR_REPO and REPO_NAME based on the triggering branch.
                     if (env.BRANCH_NAME == 'testing') {
@@ -76,17 +106,14 @@ pipeline {
             }
         }
         
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    scannerHome = tool 'sonar-scanner'
-                }
-                withSonarQubeEnv('sonar-server') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=Event-Booking -Dsonar.sources=. -Dsonar.host.url=https://sonaqube.kellerbeam.com"
-                }
-            }
-        }
         
+      //  stage('OWASP FS Scan') {
+      //      steps {
+      //         dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-CHECK'
+      //          dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+      //      }
+      //  }
+
         stage('Build Image') {
             when {
                 anyOf {
