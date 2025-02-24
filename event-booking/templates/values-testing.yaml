@@ -2,7 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2
+deployment:
+  name: python-deplyment-qa-${evironment}
+  namespace: testing
+  replicaCount: 2
 
 image:
   repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deplyment-qa:${TAG}
@@ -99,5 +102,7 @@ rollingUpdate:
   maxSurge: 25%
   maxUnavailable: 25%
 
+
+  
 env:
   

@@ -5,10 +5,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
   labels:
     app: {{ .Values.app.name }}
 spec: 
-  replicas: {{ .Values.deployment.replicas }}
+  replicas: {{ .Values.deployment.replicaCount }}
   selector:
     matchLabels:
       app: {{ .Values.app.name }}
