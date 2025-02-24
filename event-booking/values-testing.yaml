@@ -7,7 +7,7 @@ replicaCount: 2
 image:
   repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deplyment-qa:${TAG}
   pullPolicy: Always
-  tag: "10008892570"
+  tag: "v1"
 
 imagePullSecrets:
   - name: ""
