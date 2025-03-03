@@ -1,5 +1,6 @@
 def helmDeploy(Map args) {
     sh """
+        helm uninstall python-deplyment-qa-testing -n testing
         helm upgrade --install ${args.REPO_NAME}-${args.environment} ${args.HELM_CHART_PATH} \\
         --namespace ${args.namespace} \\
         --values ${args.HELM_CHART_PATH}/values-${args.environment}.yaml \\
