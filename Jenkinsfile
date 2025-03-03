@@ -22,7 +22,7 @@ pipeline {
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
-        HELM_CHART_PATH = './event-booking' // Path to Helm chart
+        HELM_CHART_PATH = './event-booking' // Path to Helm chart in the root of the application folder
         DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
         PROD_CLUSTER = 'python-cluster-production'
     }
