@@ -5,7 +5,7 @@ deployment:
   replicaCount: 2
 
 image:
-  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deployment-qa  # Fixed typo: "deplyment" → "deployment"
+  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deplyment-qa  # Fixed typo: "deplyment" → "deployment"
   pullPolicy: Always
   tag: "${TAG}"
 
