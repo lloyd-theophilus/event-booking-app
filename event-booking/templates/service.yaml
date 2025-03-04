@@ -13,4 +13,4 @@ spec:
       targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
   selector:
-    {{ toYaml .Values.service.selector | indent 4 }}}}
+    {{ toYaml .Values.service.selector | indent 4 }}

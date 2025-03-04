@@ -20,7 +20,7 @@ image:
 resources:
   limits:
     cpu: "800m"
-    memory: "1Gi"  # Increased from 512Mi to fix memory crash
+    memory: "3Gi"  # Increased from 512Mi to fix memory crash
   requests:
     cpu: "500m"
     memory: "256Mi"
