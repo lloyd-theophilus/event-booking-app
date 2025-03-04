@@ -167,6 +167,14 @@ pipeline {
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
+                    
+                    // Install Ingress-Nginx
+                    sh """
+                       helm upgrade --install ingress-nginx ingress-nginx \\
+                        --repo https://kubernetes.github.io/ingress-nginx \\
+                        --namespace ingress-nginx --create-namespace
+                    """
+
                     helmDeploy(
                         namespace: "testing",
                         environment: "testing",
@@ -185,6 +193,14 @@ pipeline {
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${DEV_CLUSTER} --region ${AWS_REGION}"
+
+                    // Install Ingress-Nginx
+                    sh """
+                       helm upgrade --install ingress-nginx ingress-nginx \\
+                        --repo https://kubernetes.github.io/ingress-nginx \\
+                        --namespace ingress-nginx --create-namespace
+                    """
+
                     helmDeploy(
                         namespace: "staging",
                         environment: "staging",
@@ -212,6 +228,14 @@ pipeline {
             steps {
                 script {
                     sh "aws eks update-kubeconfig --name ${PROD_CLUSTER} --region ${AWS_REGION}"
+
+                    // Install Ingress-Nginx
+                    sh """
+                       helm upgrade --install ingress-nginx ingress-nginx \\
+                        --repo https://kubernetes.github.io/ingress-nginx \\
+                        --namespace ingress-nginx --create-namespace
+                    """
+                    
                     helmDeploy(
                         namespace: "production",
                         environment: "prod",
