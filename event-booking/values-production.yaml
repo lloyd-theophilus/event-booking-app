@@ -1,93 +1,61 @@
-# Default values for frontend.
-deployment:
-  name: python-deployment-prod  # Fixed typo: "evironment" → "environment"
-  namespace: production
-  replicaCount: 3
-
-image:
-  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deployment-production  # Fixed typo: "deplyment" → "deployment"
-  pullPolicy: Always
-  tag: "${TAG}"
-
-imagePullSecrets:
-  - name: ""  # Replace with actual secret name if needed
-
-restartPolicy: Always
-
-volumes:
-  - name: cache-volume
-    emptyDir:
-      sizeLimit: 500Mi
-
-securityContext:
-  allowPrivilegeEscalation: false
-  runAsUser: 10005
-  runAsGroup: 10005
-  runAsNonRoot: true
-  privileged: false
-  seccompProfile:
-    type: RuntimeDefault
-  seLinuxOptions:
-    level: "s0:c123,c456"
-  capabilities:
-    drop:
-      - ALL
-
-service:
-  name: event-booking-app
-  type: LoadBalancer
-  protocol: TCP  # Fixed typo: "protocl" → "protocol"
-  port: 3000
-  targetPort: 3000
-
+# App configuration
 app:
   name: event-booking-app
 
+# Deployment configuration
+deployment:
+  name: python-deployment-production  # Matches your existing deployment
+  replicaCount: 3
+  namespace: production  # Will be overridden by helm install -n
+
+# Image configuration
+image:
+  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-deployment-production  # Note typo in "deployment"
+  tag: "${TAG}"  # Latest tag from your logs
+  pullPolicy: IfNotPresent
+  pullSecrets:
+    - name: ecr-secret  # Adjust if needed
+
+# Resource configuration
+resources:
+  limits:
+    cpu: "800m"
+    memory: "1Gi"  # Increased from 512Mi to fix memory crash
+  requests:
+    cpu: "500m"
+    memory: "256Mi"
+
+# Environment variables
+env:
+  postgres_URL: ""  # Empty now; set a valid URL if required
+
+# Security context (example, adjust as needed)
+securityContext: {}
+
+# Rolling update strategy
+rollingUpdate:
+  maxSurge: 25%
+  maxUnavailable: 25%
+
+# Service configuration
+service:
+  name: event-booking-app
+  type: LoadBalancer
+  port: 3000
+  targetPort: 3000
+  selector:
+    app: event-booking-app
+
+# Ingress configuration
 ingress:
   enabled: true
   className: "alb"
   annotations:
-    kubernetes.io/ingress.class: nginx  # Fixed indentation
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: instance
   hosts:
     - host: prod.kellerbeam.com
       paths:
         - path: /
           pathType: Prefix
   tls: []
-
-resources:
-  limits:
-    cpu: "800m"
-    memory: "512Mi"
-  requests:
-    cpu: "500m"
-    memory: "256Mi"
-
-livenessProbe:
-  exec:
-    command:
-      - cat
-      - /tmp/healthy
-  initialDelaySeconds: 10
-  periodSeconds: 10
-
-readinessProbe:
-  exec:
-    command:
-      - cat
-      - /tmp/healthy
-  initialDelaySeconds: 10  # Fixed indentation
-  periodSeconds: 10        # Fixed indentation
-
-autoscaling:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
-
-rollingUpdate:
-  maxSurge: 25%
-  maxUnavailable: 25%
-
-env: {}  # Add environment variables here if needed
