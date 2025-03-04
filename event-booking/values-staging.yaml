@@ -59,3 +59,4 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
+

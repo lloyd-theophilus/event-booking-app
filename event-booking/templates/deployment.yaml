@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.deployment.name }}
   namespace: {{ .Release.Namespace }}  # Use Helm’s release namespace
+  
   labels:
     app: {{ .Values.app.name }}
 spec:
@@ -22,6 +23,7 @@ spec:
         - containerPort: {{ .Values.service.targetPort }}  # Matches Service
         resources:
           {{ toYaml .Values.resources | nindent 10 }}
+          
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: POSTGRES_URL
@@ -30,6 +32,7 @@ spec:
         {{ toYaml .Values.imagePullSecrets | nindent 8 }}
       securityContext:
         {{ toYaml .Values.securityContext | nindent 8 }}
+        
       strategy:
         type: RollingUpdate
         rollingUpdate:
