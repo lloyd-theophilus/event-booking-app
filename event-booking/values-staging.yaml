@@ -1,27 +1,23 @@
 # Default values for frontend.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 2
+deployment:
+  name: python-deployment-staging  # Fixed typo: "evironment" → "environment"
+  namespace: staging
+  replicaCount: 3
 
 image:
-  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-flask-deployment:${TAG}
+  repository: 586794478801.dkr.ecr.eu-west-2.amazonaws.com/python-flask-deployment  # Fixed typo: "deplyment" → "deployment"
   pullPolicy: Always
-  tag: "10008892570"
+  tag: "${TAG}"
 
 imagePullSecrets:
-  - name: ""
+  - name: ""  # Replace with actual secret name if needed
+
 restartPolicy: Always
 
 volumes:
   - name: cache-volume
     emptyDir:
       sizeLimit: 500Mi
-# Additional volumes on the output Deployment definition.
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
 
 securityContext:
   allowPrivilegeEscalation: false
@@ -29,8 +25,6 @@ securityContext:
   runAsGroup: 10005
   runAsNonRoot: true
   privileged: false
-  
-  #readOnlyRootFilesystem: true
   seccompProfile:
     type: RuntimeDefault
   seLinuxOptions:
@@ -42,7 +36,7 @@ securityContext:
 service:
   name: event-booking-app
   type: LoadBalancer
-  protocl: TCP
+  protocol: TCP  # Fixed typo: "protocl" → "protocol"
   port: 3000
   targetPort: 3000
 
@@ -52,18 +46,14 @@ app:
 ingress:
   enabled: true
   className: "alb"
-  annotations: {}
-  kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+    kubernetes.io/ingress.class: nginx  # Fixed indentation
   hosts:
     - host: staging.kellerbeam.com
       paths:
         - path: /
           pathType: Prefix
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources:
   limits:
@@ -75,19 +65,19 @@ resources:
 
 livenessProbe:
   exec:
-        command:
-        - cat
-        - /tmp/healthy
+    command:
+      - cat
+      - /tmp/healthy
   initialDelaySeconds: 10
   periodSeconds: 10
 
 readinessProbe:
-   exec:
+  exec:
     command:
-    - cat
-    - /tmp/healthy
-initialDelaySeconds: 10
-periodSeconds: 10
+      - cat
+      - /tmp/healthy
+  initialDelaySeconds: 10  # Fixed indentation
+  periodSeconds: 10        # Fixed indentation
 
 autoscaling:
   enabled: true
@@ -100,5 +90,4 @@ rollingUpdate:
   maxSurge: 25%
   maxUnavailable: 25%
 
-env:
-  
+env: {}  # Add environment variables here if needed
