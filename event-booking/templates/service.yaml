@@ -2,13 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.service.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Values.app.name }}
+    app.kubernetes.io/name: {{ .Values.service.name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-  - port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.targetPort }}
-    protocol: {{ .Values.service.protocol | default "TCP" }}  # Added protocol
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
   selector:
-    app: {{ .Values.app.name }}
+    {{ toYaml .Values.service.selector | indent 4 }}
