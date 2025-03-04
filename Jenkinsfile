@@ -42,6 +42,9 @@ pipeline {
         }
         
         stage('SonarQube Analysis') {
+            when{
+                changeRequest target: 'development'
+                }
             steps {
                 script {
                     scannerHome = tool 'sonar-scanner'
