@@ -43,6 +43,9 @@ pipeline {
         }
         
         stage('SonarQube Analysis') {
+            when{
+                branch 'development'
+                }
             steps {
                 script {
                     scannerHome = tool 'sonar-scanner'
