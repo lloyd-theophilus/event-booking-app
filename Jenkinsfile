@@ -43,7 +43,7 @@ pipeline {
         
         stage('SonarQube Analysis') {
             when{
-                changeRequest target: 'development'
+                branch 'development'
                 }
             steps {
                 script {
