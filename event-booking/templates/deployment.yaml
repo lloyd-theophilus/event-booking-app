@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.deployment.name }}
-  namespace: {{ .Release.Namespace }}  # Use Helm’s release namespace
-  
+  namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.app.name }}
 spec:
@@ -11,6 +10,11 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.app.name }}
+  strategy:  # Moved up from spec.template.spec.strategy
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
   template:
     metadata:
       labels:
@@ -20,10 +24,9 @@ spec:
       - name: {{ .Values.app.name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         ports:
-        - containerPort: {{ .Values.service.targetPort }}  # Matches Service
+        - containerPort: {{ .Values.service.targetPort }}
         resources:
           {{ toYaml .Values.resources | nindent 10 }}
-          
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: POSTGRES_URL
@@ -32,9 +35,3 @@ spec:
         {{ toYaml .Values.imagePullSecrets | nindent 8 }}
       securityContext:
         {{ toYaml .Values.securityContext | nindent 8 }}
-        
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: {{ .Values.rollingUpdate.maxSurge }}
-          maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}

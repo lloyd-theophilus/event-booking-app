@@ -6,8 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     {{- toYaml .Values.ingress.annotations | nindent 4 }}
-  ingressClassName: {{ .Values.ingress.className }}
 spec:
+  ingressClassName: nginx  # Moved from metadata to spec, changed to "nginx"
   rules:
   {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}

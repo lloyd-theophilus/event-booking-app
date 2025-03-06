@@ -47,12 +47,11 @@ service:
     app: event-booking-app
 
 # Ingress configuration
+# Ingress configuration
 ingress:
   enabled: true
-  className: "alb"
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: instance
+  className: "nginx"  # Changed from "alb"
+  annotations: {}  # Remove ALB-specific annotations
   hosts:
     - host: testing.kellerbeam.com
       paths:
