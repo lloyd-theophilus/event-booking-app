@@ -49,12 +49,10 @@ service:
 # Ingress configuration
 ingress:
   enabled: true
-  className: "alb"
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: instance
+  className: "nginx"  # Changed from "alb"
+  annotations: {}  # Remove ALB-specific annotations
   hosts:
-    - host: staging.kellerbeam.com
+    - host: testing.kellerbeam.com
       paths:
         - path: /
           pathType: Prefix
