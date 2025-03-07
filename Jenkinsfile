@@ -1,10 +1,11 @@
 def helmDeploy(Map args) {
     sh """
+        helm uninstall python-deplyment-qa-testing -n testing
         helm upgrade --install ${args.REPO_NAME}-${args.environment} ${args.HELM_CHART_PATH} \\
         --namespace ${args.namespace} \\
-        --set image.repository=${args.AWS_ACCOUNT_ID}.dkr.ecr.${args.AWS_REGION}.amazonaws.com/${args.REPO_NAME} \\
-        --set image.tag=${args.TAG} \\
-        --values ${args.HELM_CHART_PATH}/values-${args.environment}.yaml
+        --values ${args.HELM_CHART_PATH}/values-${args.environment}.yaml \\
+        --set deployment.name=python-deployment-qa-${args.environment} \\
+        --set image.tag=${args.TAG}
     """
 }
 
@@ -22,7 +23,7 @@ pipeline {
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
-        HELM_CHART_PATH = './event-booking/templates' // Path to Helm chart
+        HELM_CHART_PATH = './event-booking' // Path to Helm chart in the root of the application folder
         DEV_CLUSTER = 'python-cluster-dev-stag-qa'   // Shared cluster for QA/Staging
         PROD_CLUSTER = 'python-cluster-production'
     }
