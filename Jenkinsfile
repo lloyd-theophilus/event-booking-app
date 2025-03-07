@@ -142,7 +142,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "trivy image --exit-code 0 --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
+                    sh "trivy image --exit-code 0 --skip-dirs .git --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
                 }
             }
         }
