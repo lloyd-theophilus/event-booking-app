@@ -8,7 +8,7 @@ WORKDIR /app
 # RUN apk add --no-cache python3 make g++
 
 # Copy package files first to leverage Docker layer caching
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 
 # Force install a compatible PostCSS version to fix the issue
 #RUN npm install postcss@8.4.21 postcss-safe-parser@6.0.0 --legacy-peer-deps
@@ -39,4 +39,4 @@ ENV PORT=3000
 EXPOSE ${PORT}
 
 # Start the application
-CMD ["npm", "start"] 
+CMD ["npm", "start"]  
