@@ -1,24 +1,18 @@
-# Use Alpine-based Node.js 18 for a smaller and more secure base image
+# Builder stage
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies (if needed for native modules)
-# RUN apk add --no-cache python3 make g++
-
-# Copy package files first to leverage Docker layer caching
+# Copy package files first for caching
 COPY package.json package-lock.json* ./
 
-# Force install a compatible PostCSS version to fix the issue
-#RUN npm install postcss@8.4.21 postcss-safe-parser@6.0.0 --legacy-peer-deps
-RUN npm update postcss postcss-safe-parser 
+# Install production dependencies only, with offline caching
+RUN npm ci --omit=dev --prefer-offline
 
-# Install production dependencies using npm ci for deterministic builds
-RUN npm ci --omit=dev
-
-# Copy application files
-COPY . .
+# Copy only necessary application files
+COPY src ./src
+COPY public ./public
+# Add other required directories/files if needed (e.g., config/, lib/)
 
 # ----------------------------
 # Production stage
@@ -27,7 +21,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy installed dependencies from builder
+# Copy installed dependencies and app files from builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app ./
 
@@ -39,4 +33,4 @@ ENV PORT=3000
 EXPOSE ${PORT}
 
 # Start the application
-CMD ["npm", "start"]  
+CMD ["npm", "start"]
