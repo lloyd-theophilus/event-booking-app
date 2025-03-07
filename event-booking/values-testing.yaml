@@ -47,7 +47,6 @@ service:
     app: event-booking-app
 
 # Ingress configuration
-# Ingress configuration
 ingress:
   enabled: true
   className: "nginx"  # Changed from "alb"
