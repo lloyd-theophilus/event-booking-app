@@ -20,6 +20,7 @@ pipeline {
     environment {
         DATE = new Date().format('yy.M')
         TAG = "${DATE}.${BUILD_NUMBER}"
+        DOCKER_BUILDKIT='1'
         NVD_API_KEY = 'NVD-API'
         AWS_ACCOUNT_ID = '586794478801'
         AWS_REGION = 'eu-west-2'
@@ -142,7 +143,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "trivy image --exit-code 0 --skip-dirs .git --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
+                    sh "trivy image --exit-code 0 --skip-dirs .git --scanners vuln --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
                 }
             }
         }
