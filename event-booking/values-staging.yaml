@@ -41,7 +41,7 @@ rollingUpdate:
 service:
   name: event-booking-app
   type: LoadBalancer
-  port: 3000
+  port: 80
   targetPort: 3000
   selector:
     app: event-booking-app
@@ -52,7 +52,7 @@ ingress:
   className: "nginx"  # Changed from "alb"
   annotations: {}  # Remove ALB-specific annotations
   hosts:
-    - host: testing.kellerbeam.com
+    - host: staging.kellerbeam.com
       paths:
         - path: /
           pathType: Prefix
