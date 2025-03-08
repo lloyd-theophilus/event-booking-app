@@ -143,7 +143,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "trivy image --exit-code 0 --skip-dirs .git --scanners vuln --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
+                    sh "trivy image --timeout 30m --exit-code 0 --skip-dirs .git --scanners vuln --format table ${REPO_NAME}:${TAG} > trivy-image-scan.txt"
                 }
             }
         }
