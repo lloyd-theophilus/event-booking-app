@@ -27,8 +27,19 @@ resources:
 
 # Environment variables
 env:
-  postgres_URL: ""  # Empty now; set a valid URL if required
-
+  DATABASE_HOST: "event-booking-dev-db.c58os0ickbei.eu-west-2.rds.amazonaws.com"  # e.g., mydb.123456789012.us-east-1.rds.amazonaws.com
+  DATABASE_PORT: "5432"                 # Adjust based on your DB engine
+  DATABASE_NAME: "event-booking-dev-db"               # Your database name
+  DATABASE_USER:
+    valueFrom:
+      secretKeyRef:
+        name: rds!db-f94aa00f-0452-407f-a4e0-f4502712d2ea              # Matches the Kubernetes secret name
+        key: username
+  DATABASE_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: rds!db-f94aa00f-0452-407f-a4e0-f4502712d2ea 
+        key: password
 # Security context (example, adjust as needed)
 securityContext: {}
 

@@ -29,7 +29,22 @@ spec:
           {{ toYaml .Values.resources | nindent 10 }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
-        - name: POSTGRES_URL
+        - name: DATABASE_HOST
+          value: "{{ .Values.env.DATABASE_HOST }}"
+        - name: DATABASE_PORT
+          value: "{{ .Values.env.DATABASE_PORT }}"
+        - name: DATABASE_NAME
+          value: "{{ .Values.env.DATABASE_NAME }}"
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.env.DATABASE_USER.valueFrom.secretKeyRef.name }}"
+              key: "{{ .Values.env.DATABASE_USER.valueFrom.secretKeyRef.key }}"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.env.DATABASE_PASSWORD.valueFrom.secretKeyRef.name }}"
+              key: "{{ .Values.env.DATABASE_PASSWORD.valueFrom.secretKeyRef.key }}"
           value: {{ .Values.env.postgres_URL | quote }}
       imagePullSecrets:
         {{ toYaml .Values.imagePullSecrets | nindent 8 }}
