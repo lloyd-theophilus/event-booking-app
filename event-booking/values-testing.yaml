@@ -33,12 +33,12 @@ env:
   DATABASE_USER:
     valueFrom:
       secretKeyRef:
-        name: rds!db-f94aa00f-0452-407f-a4e0-f4502712d2ea              # Matches the Kubernetes secret name
+        name: event-booking-dev-db             # Matches the Kubernetes secret name
         key: username
   DATABASE_PASSWORD:
     valueFrom:
       secretKeyRef:
-        name: rds!db-f94aa00f-0452-407f-a4e0-f4502712d2ea 
+        name: event-booking-dev-db
         key: password
 # Security context (example, adjust as needed)
 securityContext: {}
