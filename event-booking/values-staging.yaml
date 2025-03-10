@@ -27,7 +27,19 @@ resources:
 
 # Environment variables
 env:
-  postgres_URL: ""  # Empty now; set a valid URL if required
+  DATABASE_HOST: "event-booking-staging-db.c58os0ickbei.eu-west-2.rds.amazonaws.com"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "event-booking-staging-db"
+  DATABASE_USER:
+    valueFrom:
+      secretKeyRef:
+        name: event-booking-staging-db
+        key: username
+  DATABASE_PASSWORD:
+    valueFrom:
+      secretKeyRef:
+        name: event-booking-staging-db
+        key: password
 
 # Security context (example, adjust as needed)
 securityContext: {}
