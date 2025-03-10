@@ -1,0 +1,14 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: event-booking-dev-cluster
+  region: eu-west-2
+managedNodeGroups:
+  - name: staging-testing-nodegroup
+    instanceType: t2.medium
+    minSize: 2
+    desiredCapacity: 2
+    maxSize: 3
+    privateNetworking: true
+ 
